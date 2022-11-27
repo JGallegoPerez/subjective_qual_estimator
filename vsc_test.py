@@ -7,9 +7,11 @@ import time
 import matplotlib.pyplot as plt
 
 gui_active = True
-in_path = "images"
-out_path = "images/preselected"
-results_path = "images/results"
+main_dir = "images"
+preselec_dir = "images/preselected"
+rated_dir = "images/preselected/rated"
+super_rated_dir = "images/preselected/rated/super_rated"
+results_dir = "images/results"
 num_preselect = 5
 im_key_dict = {} #keys: image name; values: lists with 4 or 5 entries (keyboard rating, number of copies, 'regular'/'super', quality)
 csv_dict = {} #keys: image name; values: rating ("fake" 6-10 for superframes)
@@ -30,7 +32,7 @@ def show_image(im_path):
     img = cv2.resize(img,(400,400))
 
     # display the original image
-    cv2.imshow('QUALITY DEFINITION: ' + qual_def, img)
+    cv2.imshow(im_path, img)
     key = cv2.waitKey(0) & 0xFF
     #print("key is ", key)
     # Read from keyboard
@@ -38,12 +40,11 @@ def show_image(im_path):
         #print("key is ", str(key))  
         keep_showing = False  
         cv2.destroyAllWindows()
-
-    if key == 81:
-        #print("Key is left_arrow (reject frame)")    
+    if key ==  ord(','):
+        #print("Key is: < (reject frame)")    
         preselect = False
-    elif key == 84:
-        #print("Key is down_arrow (include frame)")  
+    elif key ==  ord('.'):
+        #print("Key is: > (include frame)")  
         preselect = True
     #print("key is ", key)
     cv2.destroyAllWindows()
@@ -54,25 +55,33 @@ def show_image(im_path):
 
 
 #mode: "random", "preselect", "im_rating", "super_im_rating"
-def run_gui(input_path, output_path, mode):
+def run_gui(mode):
     global gui_active
     global im_key_dict
     global csv_dict
+    global main_dir
+    global preselec_dir
+    global rated_dir
+    global super_rated_dir
+    global results_dir
     copy_policy = [1,1,2,2,4]
     super_copy_policy = [1,1,2,3,5] #To add (multiply) on top of what had already been copied
     counter = 0
 
     #Make directories and subdirectories
     try:
-        rating_dir1 = str(output_path + "/" + "rated")
-        os.makedirs(rating_dir1)
-        print("rating_dir1: " + rating_dir1)
+        rated_dir = str(rated_dir)
+        os.makedirs(rated_dir)
+        print("rating_dir: " + rated_dir)
+        super_rated_dir = str(super_rated_dir)
+        os.makedirs(super_rated_dir)
+        print("super_rating_dir: " + super_rated_dir)
     except FileExistsError:
         print("File already exists")
 
     file_list = []
-    for path in os.listdir(input_path):
-        if os.path.isfile(os.path.join(input_path, path)):
+    for path in os.listdir(main_dir):
+        if os.path.isfile(os.path.join(main_dir, path)):
             #file_list.append(input_path + "/" + path)
             file_list.append(path)
 
@@ -80,8 +89,8 @@ def run_gui(input_path, output_path, mode):
         print("Mode: practice")
         random_list = random.choices(file_list, k=2)
         while(gui_active):
-            img = cv2.imread(input_path + "/" + random_list[counter])
-            selec, keep_showing, _ = show_image(in_path + "/" + random_list[counter])
+            img = cv2.imread(main_dir + "/" + random_list[counter])
+            selec, keep_showing, _ = show_image(main_dir + "/" + random_list[counter])
             if keep_showing == False:
                 break
             print(str(counter+1) + " frames shown.")
@@ -98,14 +107,14 @@ def run_gui(input_path, output_path, mode):
         #Copy files into another folder
         preselect_counter = 0
         while(gui_active):
-            img = cv2.imread(input_path + "/" + file_list[counter])
-            selec, keep_showing, _ = show_image(in_path + "/" + file_list[counter])
+            img = cv2.imread(main_dir + "/" + file_list[counter])
+            selec, keep_showing, _ = show_image(main_dir + "/" + file_list[counter])
             #cv2.destroyAllWindows()
 
             if keep_showing == False:
                 break
             if selec:
-                cv2.imwrite(output_path + "/" + file_list[counter], img)
+                cv2.imwrite(preselec_dir + "/" + file_list[counter], img)
                 preselect_counter += 1
                 #+cv2.destroyAllWindows()
             else:
@@ -121,8 +130,8 @@ def run_gui(input_path, output_path, mode):
         print("Mode: image rating (scores 1-5)")
         #The new list to draw images from is in "preselected" folder
         selec_list = []
-        for path in os.listdir(output_path):
-            if os.path.isfile(os.path.join(output_path, path)):
+        for path in os.listdir(preselec_dir):
+            if os.path.isfile(os.path.join(preselec_dir, path)):
                 #file_list.append(input_path + "/" + path)
                 selec_list.append(path)
         #Randomize all elements in this list 
@@ -130,8 +139,8 @@ def run_gui(input_path, output_path, mode):
 
         im_key_dict = dict.fromkeys(selec_list)
         while(gui_active):
-            img = cv2.imread(output_path + "/" + selec_list[counter])
-            _ , keep_showing , key = show_image(output_path + "/" + selec_list[counter])
+            img = cv2.imread(preselec_dir + "/" + selec_list[counter])
+            _ , keep_showing , key = show_image(preselec_dir + "/" + selec_list[counter])
             if keep_showing == False:
                 break
             #Assign the corresponding pressed key to each image, in a dictionary
@@ -142,25 +151,25 @@ def run_gui(input_path, output_path, mode):
             if counter >= len(selec_list):
                gui_active = False
         #qual_function(im_key_dict, "simple_copies") 
-        copy_saver(im_key_dict, "images/preselected", "images/preselected/rated", copy_policy)
+        copy_saver(im_key_dict, preselec_dir, rated_dir, copy_policy)
     gui_active = True
 
 
 
     if mode == "super_rating":
         print("Mode: super frames rating (scores 1-5)")
-        #The new list to draw images from is in "first_rating" folder
+        #The new list to draw images from is in "rated" folder
         selec_list = []
-        for path in os.listdir("images/preselected/rated"):
-            if os.path.isfile(os.path.join("images/preselected/rated", path)):
+        for path in os.listdir(rated_dir):
+            if os.path.isfile(os.path.join(rated_dir, path)):
                 selec_list.append(path)
         #Randomize all elements in this list 
         random.shuffle(selec_list)
 
         im_key_dict = dict.fromkeys(selec_list)
         while(gui_active):
-            img = cv2.imread("images/preselected/rated" + "/" + selec_list[counter])
-            _ , keep_showing , key = show_image("images/preselected/rated" + "/" + selec_list[counter])
+            img = cv2.imread(rated_dir + "/" + selec_list[counter])
+            _ , keep_showing , key = show_image(rated_dir + "/" + selec_list[counter])
             if keep_showing == False:
                 break
             #Assign the corresponding pressed key to each image, in a dictionary
@@ -171,7 +180,7 @@ def run_gui(input_path, output_path, mode):
             if counter >= len(selec_list):
                gui_active = False
         #qual_function(im_key_dict, "simple_copies") 
-        copy_saver(im_key_dict, "images/preselected/rated", "images/preselected/rated", super_copy_policy, super_frames=True)
+        copy_saver(im_key_dict, rated_dir, rated_dir, super_copy_policy, super_frames=True)
     gui_active = True
 
 
@@ -225,12 +234,17 @@ def copy_saver(file_dict, input_dir, output_dir, copy_policy, super_frames=False
         val.append(n_copies)              
         #Copy the files into output_dir
         for i in range(n_copies):
-            if not super_frames:
-                ending_str = "_copy_" + str(i)
-            else:
-                ending_str = "_super_" + str(i)
+            # if not super_frames:
+            #     ending_str = "_copy_" + str(i)
+            # else:
+            #     ending_str = "_super_" + str(i)
             img = cv2.imread(input_dir + "/" + im)
-            cv2.imwrite(output_dir + "/" + im + ending_str, img)
+            # print("ending_string: ", ending_str)
+            # im = im.split('.tif')[0]
+            # print("im: ", im)
+            # cv2.imwrite(output_dir + "/" + im + ending_str + ".tif", img)
+            cv2.imwrite(output_dir + "/" + im + str(i) + ".tif", img)
+            
     
 
 
@@ -238,26 +252,26 @@ def copy_saver(file_dict, input_dir, output_dir, copy_policy, super_frames=False
 start_time = time.time()
 ######## PRELIMINARY SELECTION OF FRAMES ###########
 
-run_gui(in_path, out_path, "random")
+run_gui("random")
 cv2.destroyAllWindows()
 time.sleep(1)
-run_gui(in_path, out_path, "preselect")
+run_gui("preselect")
 cv2.destroyAllWindows()
 time.sleep(2)
 
 ######## FIRST RATING ##############################
 
-run_gui(in_path, out_path, "im_rating")
+run_gui("im_rating")
 cv2.destroyAllWindows()
 time.sleep(1)
 
-######## SUPER FRAMES RATING #######################
-run_gui(in_path, out_path, "super_rating")
-cv2.destroyAllWindows()
-time.sleep(1)
+# ######## SUPER FRAMES RATING #######################
+# run_gui("super_rating")
+# cv2.destroyAllWindows()
+# time.sleep(1)
 
 
-qual_function(im_key_dict, "simple_copies", super_frame=True) 
+qual_function(im_key_dict, "simple_copies", super_frame=False) 
 
 elapsed_time = time.time() - start_time
 print('Execution time:', time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
