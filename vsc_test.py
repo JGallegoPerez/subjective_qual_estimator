@@ -12,7 +12,7 @@ preselec_dir = "images/preselected"
 rated_dir = "images/preselected/rated"
 super_rated_dir = "images/preselected/rated/super_rated"
 results_dir = "images/results"
-num_preselect = 5
+num_preselect = 300
 im_key_dict = {} #keys: image name; values: lists with 4 or 5 entries (keyboard rating, number of copies, 'regular'/'super', quality)
 csv_dict = {} #keys: image name; values: rating ("fake" 6-10 for superframes)
 
@@ -30,8 +30,8 @@ def show_image(im_path):
     # read a colour image from the working directory
     img = cv2.imread(im_path)
     img = cv2.resize(img,(400,400))
-
-    # display the original image
+    
+    # display the original image #
     cv2.imshow(im_path, img)
     key = cv2.waitKey(0) & 0xFF
     #print("key is ", key)
@@ -64,7 +64,7 @@ def run_gui(mode):
     global rated_dir
     global super_rated_dir
     global results_dir
-    copy_policy = [1,1,2,2,4]
+    copy_policy = [1,1,2,4,8]
     super_copy_policy = [1,1,2,3,5] #To add (multiply) on top of what had already been copied
     counter = 0
 
@@ -87,7 +87,7 @@ def run_gui(mode):
 
     if mode == "random":
         print("Mode: practice")
-        random_list = random.choices(file_list, k=2)
+        random_list = random.choices(file_list, k=20)
         while(gui_active):
             img = cv2.imread(main_dir + "/" + random_list[counter])
             selec, keep_showing, _ = show_image(main_dir + "/" + random_list[counter])
