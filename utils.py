@@ -12,6 +12,8 @@ def dir_to_im_names(directory):
     for path in os.listdir(directory):
         if os.path.isfile(os.path.join(directory, path)):
             file_list.append(path)
+        # else:
+        #     print("0 images in ", directory)
 
     return file_list
 
