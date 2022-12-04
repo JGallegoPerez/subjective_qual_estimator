@@ -22,9 +22,13 @@ class Session:
         self.included.empty_dir()
         self.superframes = Subframe_group(self.main_group.directory + "/" + "included" + "/" + "superframes")
         self.superframes.empty_dir()
-        input_str = input("Enter the copy policy for non-superframes, as values separated by commas: ")
+        self.subframes_copies = Subframe_group(self.main_group.directory + "/" + "subframes_copies")
+        self.subframes_copies.empty_dir()        
+        #input_str = input("Enter the copy policy for non-superframes (4 values), as values separated by commas: ")
+        input_str = "1,1,1,2"
         self.qual_policy_nonsuper = list(map(int,input_str.strip().split(",")))
-        input_str = input("Enter the copy policy for superframes, as values separated by commas: ")
+        #input_str = input("Enter the copy policy for superframes (5 values), as values separated by commas: ")
+        input_str = "3,3,3,6,9"
         self.qual_policy_super = list(map(int,input_str.strip().split(",")))
         self.csv_file = None
     
@@ -35,21 +39,26 @@ class Session:
         included_dict = dict(filter( lambda elem: elem[1][0] != 0, self.subs_dict.items()  ))
         #print("\nincluded_dict: ", included_dict)
         num_copies = 0
+        count_copies = 0 #To later calculate the stack weights of each subframe
         for i in included_dict.items():
             if i[1][1] == 0: #if the subframe is non-super
-                #print("frame is nonsuper")
-                #print("i[1][0], which is the pressed_key: ", i[1][0])
                 num_copies =  self.qual_policy_nonsuper[(i[1][0]) - 1]
-                #print("num_copies: ", num_copies)
-                lst = self.subs_dict[i[0]]
-                lst.append(num_copies)
-                self.subs_dict[i[0]] = lst
-            else:
-                num_copies =  self.qual_policy_super[(i[1][0]) - 1]
-                lst = self.subs_dict[i[0]]
-                lst.append(num_copies)
-                self.subs_dict[i[0]] = lst                
-                #print("frame was superframe")   
+                # lst = self.subs_dict[i[0]]
+                # lst.append(num_copies)
+                # self.subs_dict[i[0]] = lst
+            else: #if the subframe is super
+                num_copies =  self.qual_policy_super[(i[1][1]) - 1]
+            lst = self.subs_dict[i[0]]
+            lst.append(num_copies)
+            self.subs_dict[i[0]] = lst   
+            count_copies += num_copies  
+        #Stack weights
+        for i in self.subs_dict.items():
+            val_lst = i[1] #Value part of subs_dict (a list)
+            thisframe_copies = val_lst[2] 
+            val_lst.append(thisframe_copies / count_copies * 100) #In percentage                 
+
+                
         #print("\nself.subs_dict: ", self.subs_dict)
         
 
@@ -59,11 +68,10 @@ class Session:
         
         # #Create CSV file, inside main_group_dir
         # #For now, quality_estimation equals number of copies made for stacking
-        fields = ['Image_name', 'First_rating', 'Superframe_rating', 'Quality_estimation'] 
-
+        fields = ['Image_name', 'First_rating', 'Superframe_rating', 'Quality_estimation', 'Stack_weight'] 
         rows = []
         for i in self.subs_dict.items():
-            new_row = i[1] #List part of the dictionary (thus, no key)
+            new_row = copy.deepcopy(i[1])   #List part of the dictionary (thus, no key)
             new_row.insert(0, i[0])
             rows.append(new_row)    
         filename = "subframes_rating.csv"
@@ -71,8 +79,37 @@ class Session:
             csvwriter = csv.writer(csvfile) 
             csvwriter.writerow(fields) 
             csvwriter.writerows(rows)
+
+        #Make copies for stacking
+        for i in self.subs_dict.items():
+            #print("self.subs_dict.items(): ", self.subs_dict.items())
+            #print("data array: ", i[1])
+            num_copies = i[1][2]
+            im_name = i[0]
+            im_path_included = os.path.join(self.included.directory, im_name)
+            img = cv2.imread(im_path_included)
+            im_name_notif = i[0].split(".tif")[0]    
+            for n in range(num_copies):
+                cv2.imwrite(self.subframes_copies.directory + "/" + im_name_notif + "_copy_" + str(n) + ".tif", img)
+                    
         
         
+        
+    def stack(self):
+        pass
+        # i_dir = self.included.directory
+        
+        # for i in range(len(self.included.im_name_list)):
+        #     i_path = os.path.join(i_dir, self.included.im_name_list[i])
+        #     image = cv2.imread(i_path,1).astype(np.float32) / 255
+        #     if i == 0:
+        #         stacked_image = image
+        #     else:
+        #         stacked_image += image
+        #         stacked_image /= len(self.included.im_name_list)
+        #         stacked_image = (stacked_image*255).astype(np.uint8)
+        
+        # cv2.imshow("Stacked", stacked_image)
 
 class Subframe:
     def __init__(self, im, name, directory):
@@ -212,7 +249,7 @@ class Display:
                 time.sleep(self.im_delay)     
                 if pressed_key == ord('q'):
                     cv2.destroyAllWindows()
-                    print("Application terminated.")
+                    #print("Application terminated.")
                     break
                 elif pressed_key in [ord('1'), ord('2'), ord('3'), ord('4'), ord('5')]:
                     #The 0 below is the superframe score. For now, 0 for all subframes.
