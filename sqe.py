@@ -25,10 +25,10 @@ class Session:
         self.subframes_copies = Subframe_group(self.main_group.directory + "/" + "subframes_copies")
         self.subframes_copies.empty_dir()        
         #input_str = input("Enter the copy policy for non-superframes (4 values), as values separated by commas: ")
-        input_str = "1,1,1,2"
+        input_str = "3,4,5,6"
         self.qual_policy_nonsuper = list(map(int,input_str.strip().split(",")))
         #input_str = input("Enter the copy policy for superframes (5 values), as values separated by commas: ")
-        input_str = "3,3,3,6,9"
+        input_str = "8,10,15,30,40"
         self.qual_policy_super = list(map(int,input_str.strip().split(",")))
         self.csv_file = None
     
@@ -182,7 +182,10 @@ class Display:
 
         if self.disp_type == "practice":
             counter = 0
-            while counter < len(im_names_practice):
+            #while counter < len(im_names_practice):
+            while True:   
+                if counter == len(im_names_practice):
+                    counter = 0 #Counter reset to 0 after a whole cycle             
                 im_name = im_names_practice[counter]
                 im_path = os.path.join(self.subs_group.directory, im_name)
                 img = cv2.imread(im_path)
@@ -195,7 +198,7 @@ class Display:
                 time.sleep(self.im_delay)     
                 if pressed_key == ord('q'):
                     cv2.destroyAllWindows()
-                    print("Application terminated.")
+                    print("Practice terminated.")
                     break
                 counter += 1
     
