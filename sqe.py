@@ -31,6 +31,7 @@ class Session:
         input_str = "8,10,15,30,40"
         self.qual_policy_super = list(map(int,input_str.strip().split(",")))
         self.csv_file = None
+
     
     #For now, the quality estimation consists in the number of copies for the stacking
     def qual_estimation(self):
@@ -155,19 +156,18 @@ class Display:
         self.subs_group.im_name_list = sorted(self.subs_group.im_name_list)
         self.disp_type = disp_type #Types: practice, preselect, rating, superframe
         if self.disp_type == "practice":
-            self.instructions = f"You will see a series of subframes as practice. Press any key to show the next image.\nPress <q> to move on to PRESELECTION."
+            self.instructions = f"You will see a series of subframes as practice. Press any key to show the next image.\nPress 'm' to return to menu."
         elif self.disp_type == "preselect":
-            #self.session = session
-            self.instructions = "Select a substantial amount of subframes (e.g. 500-1500). Press <,> for rejecting and <.> for selecting.\nPress <q> to move on to RATING."
+            self.instructions = "Select a substantial amount of subframes (e.g. 500-1500). Press <,> for rejecting and <.> for selecting.\nPress 'm' to return to menu."
         elif self.disp_type == "rating":
-            #self.session = session
             self.instructions = "Rate each image from 1 (worst quality) to 5 (best quality) by pressing 1-5 number keys on the keyboard."
         elif self.disp_type == "superframes":
-            #self.session = session
             self.instructions = "Rate each image from 1 (worst quality) to 5 (best quality) by pressing 1-5 number keys on the keyboard."
+        self.counter_preselec = 0
+        self.counter_selected = 0
 
-
-    def run(self, random_order=True):
+    def run(self, random_order=True):  
+        
         #Get the list of the names of the images
         im_names = self.subs_group.im_name_list 
         if random_order:
@@ -181,32 +181,31 @@ class Display:
         print(self.instructions + "\n")
 
         if self.disp_type == "practice":
-            counter = 0
+            counter_practice = 0
             #while counter < len(im_names_practice):
             while True:   
-                if counter == len(im_names_practice):
-                    counter = 0 #Counter reset to 0 after a whole cycle             
-                im_name = im_names_practice[counter]
+                if counter_practice == len(im_names_practice):
+                    counter_practice = 0 #Counter reset to 0 after a whole cycle             
+                im_name = im_names_practice[counter_practice]
                 im_path = os.path.join(self.subs_group.directory, im_name)
                 img = cv2.imread(im_path)
                 img = cv2.resize(img, self.disp_size)
                 cv2.imshow(im_path, img)
                 pressed_key = cv2.waitKey(0) & 0xFF
                 #print("key ord: ", pressed_key)
-                print(f"{counter + 1} practice subframes shown as practice.")   
+                print(f"{counter_practice + 1} practice subframes shown as practice.")   
                 cv2.destroyAllWindows()
                 time.sleep(self.im_delay)     
-                if pressed_key == ord('q'):
+                if pressed_key == ord('m'):
                     cv2.destroyAllWindows()
-                    print("Practice terminated.")
                     break
-                counter += 1
+                counter_practice += 1
     
         elif self.disp_type == "preselect":
-            counter = 0
-            counter_selected = 0
-            while counter < len(im_names): 
-                im_name = im_names[counter]
+            #counter = 0
+            #counter_selected = 0
+            while self.counter_preselec < len(im_names): 
+                im_name = im_names[self.counter_preselec]
                 im_path = os.path.join(self.subs_group.directory, im_name)
                 im_path_rejected = os.path.join(self.subs_group.directory + "/rejected/", im_name)
                 im_path_preselect = os.path.join(self.subs_group.directory + "/included/", im_name)
@@ -216,25 +215,24 @@ class Display:
                 pressed_key = cv2.waitKey(0) & 0xFF
                 cv2.destroyAllWindows()
                 time.sleep(self.im_delay)     
-                if pressed_key == ord('q'):
+                if pressed_key == ord('m'):
                     cv2.destroyAllWindows()
-                    print("Application terminated.")
                     break
                 elif pressed_key == ord(','):
                     frame_include = False
                     self.session.subs_dict[im_name] = [0, 0, 0] # 0 indicates rejection
                     cv2.imwrite(im_path_rejected, img)
-                    counter += 1
+                    self.counter_preselec += 1
                 elif pressed_key == ord('.'):
                     frame_include = True
                     self.session.subs_dict[im_name] = None #Frames not evaluated yet
                     self.session.included.im_name_list.append(im_name)
                     cv2.imwrite(im_path_preselect, img)
-                    counter += 1
-                    counter_selected += 1
+                    self.counter_preselec += 1
+                    self.counter_selected += 1
                 else:
-                    print("Press <,> for rejection, <.> for preselection, or <q> to quit.")
-                print(f"{counter} subframes shown. {counter_selected} subframes selected.") 
+                    print("Press <,> for rejection, <.> for preselection, or <m> to return to menu.")
+                print(f"{self.counter_preselec} subframes shown. {self.counter_selected} subframes selected.") 
 
         elif self.disp_type == "rating":
             print("in rating")
@@ -250,7 +248,7 @@ class Display:
                 print(f"{counter + 1} subframes shown for rating.")   
                 cv2.destroyAllWindows()
                 time.sleep(self.im_delay)     
-                if pressed_key == ord('q'):
+                if pressed_key == ord('m'):
                     cv2.destroyAllWindows()
                     #print("Application terminated.")
                     break
@@ -262,7 +260,7 @@ class Display:
                         cv2.imwrite(im_path_super, img)
                     counter += 1
                 else:
-                    print("Press keys 1-5 to rate the images, or <q> to quit.")     
+                    print("Press keys 1-5 to rate the images, or <m> to return to menu.")     
                 print(f"{counter} subframes shown in RATING.")       
 
 
@@ -279,9 +277,8 @@ class Display:
                 print(f"{counter + 1} subframes shown for superframes.")   
                 cv2.destroyAllWindows()
                 time.sleep(self.im_delay)     
-                if pressed_key == ord('q'):
+                if pressed_key == ord('m'):
                     cv2.destroyAllWindows()
-                    print("Application terminated.")
                     break
                 elif pressed_key in [ord('1'), ord('2'), ord('3'), ord('4'), ord('5')]:
                     lst = self.session.subs_dict[im_name]
@@ -289,7 +286,7 @@ class Display:
                     self.session.subs_dict[im_name] = lst
                     counter += 1
                 else:
-                    print("Press keys 1-5 to rate the images, or <q> to quit.")     
+                    print("Press keys 1-5 to rate the images, or <m> to return to menu.")     
                 print(f"{counter} subframes shown in SUPERFRAMES.")
 
                         
