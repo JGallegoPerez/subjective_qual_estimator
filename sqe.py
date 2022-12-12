@@ -7,6 +7,8 @@ import time
 import matplotlib.pyplot as plt
 import copy
 import csv
+from tempfile import NamedTemporaryFile
+import shutil
 
 
 class Session:
@@ -24,47 +26,89 @@ class Session:
         self.superframes.empty_dir()
         self.subframes_copies = Subframe_group(self.main_group.directory + "/" + "subframes_copies")
         self.subframes_copies.empty_dir()        
-        #input_str = input("Enter the copy policy for non-superframes (4 values), as values separated by commas: ")
         input_str = "3,4,5,6"
         self.qual_policy_nonsuper = list(map(int,input_str.strip().split(",")))
-        #input_str = input("Enter the copy policy for superframes (5 values), as values separated by commas: ")
         input_str = "8,10,15,30,40"
         self.qual_policy_super = list(map(int,input_str.strip().split(",")))
+        #Create CSV file (only with the fields for now)
+        #First_rating: -1 indicates rejected, 0 included (not rated yet). 
+        self.fields = ['Image_name', 'First_rating', 'Superframe_rating', 'Quality_estimation', 'Stack_weight'] 
+        with open("subs_ratings.csv", 'w') as self.csvfile: 
+            self.csvwriter = csv.writer(self.csvfile) 
+            self.csvwriter.writerow(self.fields) 
+            self.csvfile.close()
         self.csv_file = None
 
-    
-    #For now, the quality estimation consists in the number of copies for the stacking
-    def qual_estimation(self):
-        
-        #Iterate through all included subframes
-        included_dict = dict(filter( lambda elem: elem[1][0] != 0, self.subs_dict.items()  ))
-        #print("\nincluded_dict: ", included_dict)
+    def write_to_csv(self, file_name, input, mode):
+        new_row = []
+        if mode == 'preselect':
+            new_row = [file_name, input, 0, 0, 0]
+            with open("subs_ratings.csv", 'a') as self.csvfile: 
+                self.csvwriter = csv.writer(self.csvfile) 
+                self.csvwriter.writerow(new_row) 
+                self.csvfile.close()
+        if mode == 'rating':
+            csv_name = "subs_ratings.csv"
+            tempfile = NamedTemporaryFile(mode='w', delete=False)
+            with open(csv_name, 'r') as csvfile, tempfile:
+                reader = csv.DictReader(csvfile, fieldnames=self.fields)
+                writer = csv.DictWriter(tempfile, fieldnames=self.fields)
+                for row in reader:
+                    if row['Image_name'] == str(file_name):
+                        print('updating row ', row['Image_name'])
+                        row['First_rating'], row['Superframe_rating'], row['Quality_estimation'], row['Stack_weight'] = input, 0, 0, 0
+                    row = {'Image_name': row['Image_name'], 'First_rating': row['First_rating'], 'Superframe_rating': row['Superframe_rating'], 'Quality_estimation': row['Quality_estimation'], 'Stack_weight': row['Stack_weight']}
+                    writer.writerow(row)
+            shutil.move(tempfile.name, csv_name)
+        if mode == 'superframes':
+            csv_name = "subs_ratings.csv"
+            tempfile = NamedTemporaryFile(mode='w', delete=False)
+            with open(csv_name, 'r') as csvfile, tempfile:
+                reader = csv.DictReader(csvfile, fieldnames=self.fields)
+                writer = csv.DictWriter(tempfile, fieldnames=self.fields)
+                for row in reader:
+                    if row['Image_name'] == str(file_name):
+                        print('updating row ', row['Image_name'])
+                        row['First_rating'], row['Superframe_rating'], row['Quality_estimation'], row['Stack_weight'] = row['First_rating'], input, 0, 0
+                    row = {'Image_name': row['Image_name'], 'First_rating': row['First_rating'], 'Superframe_rating': row['Superframe_rating'], 'Quality_estimation': row['Quality_estimation'], 'Stack_weight': row['Stack_weight']}
+                    writer.writerow(row)
+            shutil.move(tempfile.name, csv_name)
+
+
+    def show_stats(self):
+        csv_path = 'subs_ratings.csv'
+        with open(csv_path, 'r') as read_obj:
+            csv_reader = csv.reader(read_obj)
+            list_of_csv = list(csv_reader)
+            print(list_of_csv)
+        in_path = ''
+        out_path = ''
         num_copies = 0
-        count_copies = 0 #To later calculate the stack weights of each subframe
-        for i in included_dict.items():
-            if i[1][1] == 0: #if the subframe is non-super
-                num_copies =  self.qual_policy_nonsuper[(i[1][0]) - 1]
-                # lst = self.subs_dict[i[0]]
-                # lst.append(num_copies)
-                # self.subs_dict[i[0]] = lst
-            else: #if the subframe is super
-                num_copies =  self.qual_policy_super[(i[1][1]) - 1]
-            lst = self.subs_dict[i[0]]
-            lst.append(num_copies)
-            self.subs_dict[i[0]] = lst   
-            count_copies += num_copies  
-        #Stack weights
-        for i in self.subs_dict.items():
-            val_lst = i[1] #Value part of subs_dict (a list)
-            thisframe_copies = val_lst[2] 
-            val_lst.append(thisframe_copies / count_copies * 100) #In percentage                 
+        count_list = []
+        count_copies = []
+        for i in list_of_csv:
+            if len(i) > 0 and i is not list_of_csv[0]:
+                im_name = i[0]
+                im_name_notif = im_name.split(".tif")[0] 
+                in_path = os.path.join('images/', im_name)
+                count_list.append(int(i[1]))
+                count_copies.append(int(i[3]))
 
-                
-        #print("\nself.subs_dict: ", self.subs_dict)
-        
+        #Calculating equivalent number of subframes stacked
+        copies_arr = np.array(count_copies)
+        copy_max = np.max(copies_arr)
+        subs_equival = np.sum(copies_arr / copy_max)
+        print('Equivalent number of stacked subframes: ', subs_equival)
 
-    
-    def end(self):
+        #Histogram
+        data = count_list
+        _, _, patches = plt.hist(data, [0,1,2,3,4,5,6], align="left")
+        plt.show()
+
+
+
+
+    def end(self):   #############################     ZOMBIE CODE  ################
         # #Show histogram, statistics
         
         # #Create CSV file, inside main_group_dir
@@ -92,9 +136,39 @@ class Session:
             im_name_notif = i[0].split(".tif")[0]    
             for n in range(num_copies):
                 cv2.imwrite(self.subframes_copies.directory + "/" + im_name_notif + "_copy_" + str(n) + ".tif", img)
-                    
+
+    
+    #For now, the quality estimation consists in the number of copies for the stacking
+    def qual_estimation(self):
         
+        #Iterate through all included subframes
+        included_dict = dict(filter( lambda elem: elem[1][0] != 0, self.subs_dict.items()  ))
+        num_copies = 0
+        count_copies = 0 #To later calculate the stack weights of each subframe
+        for i in included_dict.items():
+            if i[1][1] == 0: #if the subframe is non-super
+                num_copies =  self.qual_policy_nonsuper[(i[1][0]) - 1]
+                # lst = self.subs_dict[i[0]]
+                # lst.append(num_copies)
+                # self.subs_dict[i[0]] = lst
+            else: #if the subframe is super
+                num_copies =  self.qual_policy_super[(i[1][1]) - 1]
+            lst = self.subs_dict[i[0]]
+            lst.append(num_copies)
+            self.subs_dict[i[0]] = lst   
+            count_copies += num_copies  
+        #Stack weights
+        for i in self.subs_dict.items():
+            val_lst = i[1] #Value part of subs_dict (a list)
+            thisframe_copies = val_lst[2] 
+            val_lst.append(thisframe_copies / count_copies * 100) #In percentage                 
+
+                
+        #print("\nself.subs_dict: ", self.subs_dict)
         
+
+    
+
         
     def stack(self):
         pass
@@ -143,10 +217,8 @@ class Subframe_group:
                 if os.path.isfile(os.path.join(self.directory, f)):
                     os.remove(os.path.join(self.directory, f))
 
-
-
 class Display:
-    disp_size = (500, 500) #This does not correspond to the pixel size of the image
+    disp_size = (600, 600) #This does not correspond to the pixel size of the image
     im_delay = 0.25
     #num_subs_practice = 2
 
@@ -165,11 +237,14 @@ class Display:
             self.instructions = "Rate each image from 1 (worst quality) to 5 (best quality) by pressing 1-5 number keys on the keyboard."
         self.counter_preselec = 0
         self.counter_selected = 0
+        self.counter_reg_rating = 0
+        self.counter_superframes = 0
 
     def run(self, random_order=True):  
         
         #Get the list of the names of the images
         im_names = self.subs_group.im_name_list 
+        assert len(im_names) > 0, f"len(im_names) is 0" 
         if random_order:
             if self.disp_type == "practice":
                 im_names_practice = copy.deepcopy(im_names)
@@ -185,11 +260,13 @@ class Display:
             #while counter < len(im_names_practice):
             while True:   
                 if counter_practice == len(im_names_practice):
-                    counter_practice = 0 #Counter reset to 0 after a whole cycle             
+                    counter_practice = 0 #Counter reset to 0 after a whole cycle 
+                assert len(im_names_practice) > 0, f"len of im_names_practice is 0"       
                 im_name = im_names_practice[counter_practice]
                 im_path = os.path.join(self.subs_group.directory, im_name)
                 img = cv2.imread(im_path)
                 img = cv2.resize(img, self.disp_size)
+                img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE) 
                 cv2.imshow(im_path, img)
                 pressed_key = cv2.waitKey(0) & 0xFF
                 #print("key ord: ", pressed_key)
@@ -211,6 +288,7 @@ class Display:
                 im_path_preselect = os.path.join(self.subs_group.directory + "/included/", im_name)
                 img = cv2.imread(im_path)
                 img = cv2.resize(img, self.disp_size)
+                img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
                 cv2.imshow(im_path, img)
                 pressed_key = cv2.waitKey(0) & 0xFF
                 cv2.destroyAllWindows()
@@ -223,6 +301,7 @@ class Display:
                     self.session.subs_dict[im_name] = [0, 0, 0] # 0 indicates rejection
                     cv2.imwrite(im_path_rejected, img)
                     self.counter_preselec += 1
+                    self.session.write_to_csv(im_name, -1, 'preselect')
                 elif pressed_key == ord('.'):
                     frame_include = True
                     self.session.subs_dict[im_name] = None #Frames not evaluated yet
@@ -230,22 +309,22 @@ class Display:
                     cv2.imwrite(im_path_preselect, img)
                     self.counter_preselec += 1
                     self.counter_selected += 1
+                    self.session.write_to_csv(im_name, 0, 'preselect')
                 else:
                     print("Press <,> for rejection, <.> for preselection, or <m> to return to menu.")
                 print(f"{self.counter_preselec} subframes shown. {self.counter_selected} subframes selected.") 
 
         elif self.disp_type == "rating":
-            print("in rating")
-            counter = 0
-            while counter < len(im_names_shuffled): 
-                im_name = im_names_shuffled[counter]
+            while self.counter_reg_rating < len(im_names_shuffled): 
+                im_name = im_names_shuffled[self.counter_reg_rating]
                 im_path_included = os.path.join(self.subs_group.directory, im_name)
                 im_path_super = os.path.join(self.subs_group.directory + "/superframes/", im_name)
                 img = cv2.imread(im_path_included)
                 img = cv2.resize(img, self.disp_size)
+                img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
                 cv2.imshow(im_path_included, img)
                 pressed_key = cv2.waitKey(0) & 0xFF
-                print(f"{counter + 1} subframes shown for rating.")   
+                print(f"{self.counter_reg_rating + 1} subframes shown for rating.")   
                 cv2.destroyAllWindows()
                 time.sleep(self.im_delay)     
                 if pressed_key == ord('m'):
@@ -255,26 +334,26 @@ class Display:
                 elif pressed_key in [ord('1'), ord('2'), ord('3'), ord('4'), ord('5')]:
                     #The 0 below is the superframe score. For now, 0 for all subframes.
                     self.session.subs_dict[im_name] = [int(chr(pressed_key)), 0]
+                    self.session.write_to_csv(im_name, int(chr(pressed_key)), 'rating')
                     if pressed_key == ord('5'):
                         self.session.superframes.im_name_list.append(im_name)
                         cv2.imwrite(im_path_super, img)
-                    counter += 1
+                    self.counter_reg_rating += 1
                 else:
                     print("Press keys 1-5 to rate the images, or <m> to return to menu.")     
-                print(f"{counter} subframes shown in RATING.")       
+                print(f"{self.counter_reg_rating} subframes shown in RATING.")       
 
 
         elif self.disp_type == "superframes":
-            print("in superframes")
-            counter = 0
-            while counter < len(im_names_shuffled): 
-                im_name = im_names_shuffled[counter]
+            while self.counter_superframes < len(im_names_shuffled): 
+                im_name = im_names_shuffled[self.counter_superframes]
                 im_path = os.path.join(self.subs_group.directory, im_name)
                 img = cv2.imread(im_path)
                 img = cv2.resize(img, self.disp_size)
+                img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
                 cv2.imshow(im_path, img)
                 pressed_key = cv2.waitKey(0) & 0xFF
-                print(f"{counter + 1} subframes shown for superframes.")   
+                print(f"{self.counter_superframes + 1} subframes shown for superframes.")   
                 cv2.destroyAllWindows()
                 time.sleep(self.im_delay)     
                 if pressed_key == ord('m'):
@@ -283,15 +362,16 @@ class Display:
                 elif pressed_key in [ord('1'), ord('2'), ord('3'), ord('4'), ord('5')]:
                     lst = self.session.subs_dict[im_name]
                     lst[1] = int(chr(pressed_key)) #The second element in subs_dict is the superframe rating
+                    self.session.write_to_csv(im_name, int(chr(pressed_key)), 'superframes')
                     self.session.subs_dict[im_name] = lst
-                    counter += 1
+                    self.counter_superframes += 1
                 else:
                     print("Press keys 1-5 to rate the images, or <m> to return to menu.")     
-                print(f"{counter} subframes shown in SUPERFRAMES.")
+                print(f"{self.counter_superframes} subframes shown in SUPERFRAMES.")
 
                         
 
-
+  
 
 
 
@@ -301,8 +381,6 @@ class Display:
 
 
         
-
-
 
 
 

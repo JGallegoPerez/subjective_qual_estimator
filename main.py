@@ -1,5 +1,4 @@
 
-
 import sqe
 
 
@@ -42,7 +41,6 @@ disp6.run(random_order=True)
 
 session.qual_estimation()
 session.end()
-
 
 
 

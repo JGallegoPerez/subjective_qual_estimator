@@ -10,7 +10,7 @@ from matplotlib.image import imread
 from PIL import Image
 import csv
 
-csv_path = 'subframes_rating.csv'
+csv_path = 'subs_ratings.csv'
 
 with open(csv_path, 'r') as read_obj:
     csv_reader = csv.reader(read_obj)
@@ -29,28 +29,27 @@ for i in list_of_csv:
         in_path = os.path.join('images/', im_name)
         count_list.append(int(i[1]))
         count_copies.append(int(i[3]))
+
+                    #####################Histogram fixed##########################################
+                    # data = count_list
+                    # _, _, patches = plt.hist(data, [0,1,2,3,4,5,6], align="left")
+                    # plt.show()
+                    ##############################################################################
+
+                    #Calculating equivalent number of subframes stacked
+                    #print("count_copies: ", count_copies[:10])
+                    # copies_arr = np.array(count_copies)
+                    # copy_max = np.max(copies_arr)
+
+                    # subs_equival = np.sum(copies_arr / copy_max)
+                    # print('subs_equival: ', subs_equival)
+        im = cv2.imread(in_path)
         
-
-#####################Histogram fixed##########################################
-# data = count_list
-# _, _, patches = plt.hist(data, [0,1,2,3,4,5,6], align="left")
-# plt.show()
-##############################################################################
-
-#Calculating equivalent number of subframes stacked
-#print("count_copies: ", count_copies[:10])
-copies_arr = np.array(count_copies)
-copy_max = np.max(copies_arr)
-
-subs_equival = np.sum(copies_arr / copy_max)
-print('subs_equival: ', subs_equival)
-
-
-
-    
-        # im = cv2.imread(in_path)
-        
-        # num_copies = int(i[3])
+        #num_copies = int(i[3])
+        if int(i[1]) == -1: #We dont want weird negative numbers...
+            num_copies = 0
+        else:
+            num_copies = 5 + int(i[1]) + int(i[2])      #new "formula"
         # if num_copies == 40:
         #     num_copies = 60
         # elif num_copies == 30:
@@ -64,10 +63,10 @@ print('subs_equival: ', subs_equival)
         # elif num_copies == 6:
         #     num_copies = 10
             
-        # for n in range(num_copies):
-        #     out_path = 'images/copies_fixed/' + im_name_notif + "_copy_" + str(n) + ".tif"
+        for n in range(num_copies):
+            out_path = 'images/copies_fixed/' + im_name_notif + "_copy_" + str(n) + ".tif"
 
-            #cv2.imwrite(out_path, im)
+            cv2.imwrite(out_path, im)
             #print('inside for')
             #print("im shape: ", im.shape)
         # if int(i[1]) != 0:
@@ -125,8 +124,6 @@ print("csv_arr shape: ", csv_arr.shape)
 # pressed_key = cv2.waitKey(0) & 0xFF     
     
 # cv2.imwrite("images/subframes_copies/tests/stacked_im/stacked_im.tif", stacked_im)
-
-
 
 
 
