@@ -13,7 +13,7 @@ only the subframes with the highest quality (typically, 1-20% of the subframes i
 
 ## Automatic quality estimation
 Commercial applications, such as PIPP and AutoStakkert, do a great job at sorting the subframes by quality. They rely on methods such as estimating local 
-contrast values. For example, according to the PIPP team [https://sites.google.com/site/astropipp/pipp-manual/quality-options]:
+contrast values. For example, according to the PIPP team (https://sites.google.com/site/astropipp/pipp-manual/quality-options):
 *For the default and original quality algorithms, the quality estimation is based on calculating a summation of local contrast values (sum of squares of 
 the difference between adjacent pixels) for a series of subsampled images.  Higher calculated values indicate higher quality images.*
 
@@ -24,7 +24,7 @@ might look better to most people (ratings: 98.97% quality, versus 98.86%, respec
 
 ![00023_2022-11-19-1852_7-T-RGB-Mars_f01127_quality_98 87](https://user-images.githubusercontent.com/89183135/209307137-19044abd-2264-45b0-b31a-ab9ed0162d72.jpg)
 
-   *Image rated with 98.97% quality. Supposedly, superior to the image below*
+   *Image rated with 98.97% quality. Supposedly, superior to the image below.*
 
 
 ![00024_2022-11-19-1852_7-T-RGB-Mars_f06736_quality_98 86](https://user-images.githubusercontent.com/89183135/209307176-79fc3326-33ed-4b4b-8892-bc57b1b8f5c3.jpg)
@@ -40,17 +40,42 @@ at least in the regions of the disk that I'm mostly interested in, etc. For such
 pick our own images. Hundreds or thousands, one by one...
 This is where the present project comes into play.
 
-## Purpose of the program 
+## Purpose of this project 
 
 The program allows us to rate our astronomical images one by one, subjectively, according to our own aesthetic preferences. The ratings serve a double purpose: 
 1) Weighted stacking: the ratings correspond to weights according to which the program will create more or less copies of the selected subframes (for stacking).
 2) Later experimentation: the ratings, as well as other values, are saved in a .CSV file that can be later reused to experiment, for example, with different 
 stacking weights, or as labels for Machine Learning applications.
 
+### Weighted stacking
+
+Applications like PIPP offer us the possibility to increase the number of copies of the best subframes that are to be stacked. This is a way of increasing the impact
+of the best subframes in the final stacked image. This project addresses weighted copying too, but with more flexibility. We are able to assign different weights to the different rating scores. Furthermore, we introduce the concept of *superframes*, which are treated separatedly from the rest of frames. 
+#### Superframes
+If you have practiced planetary astrophotography, have you noticed when blinking through a set of subframes that, from time to time, a subframe so visually appealing 
+shows up, that we might almost compare it to what could be a final, all-processed image. Although this is all very subjective (that is the motto of the project), 
+it may seem that such *superframes* may appear as rarely as every hundred or several hundreds subframes. Therefore, they have their own space in space in the 
+rating procedure. 
+
+### Ratings experimentation
+Scores are dynamically saved throughout the rating process in a .CSV file, which can be later explored with Excel or our own IDE tools. Histograms, as well as 
+a final summary, tell us about the distributions of the scores, which in turn inform us to decide upon the weights we may want to give to each score. For example,
+if we have a scarce set of subs that include one or two superframes, we may not want to assign to the latter weights that are too high. Having an equivalent 
+representation in the stack of 10% or more, for example, that subframe would contribute its good appearance, but would also impose its own noise. The final summary
+shows the equivalent number of frames that would have been stacked, had there been no weighting (thus, copying of subframes). 
+
+
+
+## Procedure in a nutshell 
 
 
 
 
 
-Frame-by-frame blinking
+
+
+Special thanks to Takazumi Matsumoto for .. and to Alex Baranski for...
+
+
+
 
