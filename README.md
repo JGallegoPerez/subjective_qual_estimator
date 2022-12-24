@@ -12,7 +12,7 @@ only the subframes with the highest quality (typically, 1-20% of the subframes i
 
 ## Automatic quality estimation
 Commercial applications, such as PIPP and AutoStakkert, do a great job at sorting the subframes by quality. They rely on methods such as estimating local 
-contrast values. For example, according to the PIPP team ([https://sites.google.com/site/astropipp/pipp-manual/quality-options]):
+contrast values. For example, according to the PIPP team [https://sites.google.com/site/astropipp/pipp-manual/quality-options]:
 *For the default and original quality algorithms, the quality estimation is based on calculating a summation of local contrast values (sum of squares of 
 the difference between adjacent pixels) for a series of subsampled images.  Higher calculated values indicate higher quality images.*
 
@@ -23,6 +23,7 @@ versus 98.86%, respectively):
 
 ![00023_2022-11-19-1852_7-T-RGB-Mars_f01127_quality_98 87](https://user-images.githubusercontent.com/89183135/209307137-19044abd-2264-45b0-b31a-ab9ed0162d72.jpg)
    *Image rated with 98.97% quality. Supposedly, superior to the image below*
+![03429_2022-11-19-1910_0-T-RGB-Mars_f47193_quality_93 04%](https://user-images.githubusercontent.com/89183135/209436679-50807784-3a95-40de-96fe-bb1a54c1d6dc.png)
 
 
 ![00024_2022-11-19-1852_7-T-RGB-Mars_f06736_quality_98 86](https://user-images.githubusercontent.com/89183135/209307176-79fc3326-33ed-4b4b-8892-bc57b1b8f5c3.jpg)
@@ -35,6 +36,14 @@ at least in the regions of the disk that are interesting to me, etc. For such a 
 pick our own images. Hundreds or thousands, one by one...
 
 Manually selecting subframes
+
+
+
+
+
+
+
+
 
 
 
