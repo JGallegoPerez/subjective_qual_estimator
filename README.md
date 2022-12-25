@@ -104,19 +104,29 @@ we may have lost the initial sense of what the subframes we are rating look like
 
 ## csv and experimentation
 
-The program saves a .CSV file that contains the images' names, first/regular ratings, superframe ratings, quality estimations (at this point, identified with the numbers of copies to save for the stack) and stack weights (representing the impact, in percentage, that each weighted image will have over the whole stack), 
-(see Figure below).
+The program saves a .CSV file, called "*subs_ratings.csv*" that contains the images' names, first/regular ratings, superframe ratings, quality estimations (at this point, identified with the numbers of copies to save for the stack) and stack weights (representing the impact, in percentage, that each weighted image will have over the whole stack), (see Figure below). 
   
 #############CSV FILE PICTURE 
  
+The file is updated every time we rate a new image. It will be overwritten if we start a new session (by pressing <b> to begin another session).
+  
+We can experiment with different stacking weights at the end of a session, the results of which will show up in the final statistics and will also modify the .CSV
+file accordingly. If we run the program and there is data stored in the .CSV file, we can also directly experiment with different stacking weights if we press <q> (from "quality estimation"). Just be careful enough not to press <b>. 
+  
   
 ## Installation and dependencies
-Folders, subfolders...
-File format
+  
+The initial set of images must be contained in a main directory that must be called "*images*". The program will create other subdirectories in it, containing 
+subframes from the various stages in the rating process. The most important of these subdirectories will be "*subframes_copies*", which will contain the images 
+to be stacked and can be used directly with other commercial applications, such as AutoStakkert, to stack the images. 
+  
+The required file format for the images is .tif, but this can be easily modified in the utils.py module, as long as the image file formats are within those 
+accepted by OpenCV. 
 
+## Acknowledgments
+  
+Special thanks to Takazumi Matsumoto for encouragement and inspiration, as well as to Alex Baranski.
 
-Special thanks to Takazumi Matsumoto for .. and to Alex Baranski for...
-
-
+################################__init__
 
 
