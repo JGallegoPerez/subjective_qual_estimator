@@ -52,9 +52,7 @@ stacking weights, or as labels for Machine Learning applications.
 Applications like PIPP offer us the possibility to increase the number of copies of the best subframes that are to be stacked. This is a way of increasing the impact
 of the best subframes in the final stacked image. This project addresses weighted copying too, but with more flexibility. We are able to assign different weights to the different rating scores. Furthermore, we introduce the concept of *superframes*, which are treated separatedly from the rest of frames. 
 #### Superframes
-If you have practiced planetary astrophotography, have you noticed when blinking through a set of subframes that, from time to time, a subframe so visually appealing 
-shows up, that we might almost compare it to what could be a final, all-processed image. Although this is all very subjective (that is the motto of the project), 
-it may seem that such *superframes* may appear as rarely as every hundred or several hundreds subframes. Therefore, they have their own space in space in the 
+If you have ever practiced planetary astrophotography, have you noticed when blinking through a set of subframes that, from time to time, a subframe so visually appealing shows up, that you might almost compare it to what could be a final, all-processed image? Although this is all very subjective (that is the motto of the project), it may seem that such *superframes* may appear as rarely as every hundred or several hundreds subframes. Therefore, they have their own space in space in the 
 rating procedure. 
 
 ### Ratings experimentation
@@ -106,6 +104,12 @@ we may have lost the initial sense of what the subframes we are rating look like
 
 ## csv and experimentation
 
+The program saves a .CSV file that contains the images' names, first/regular ratings, superframe ratings, quality estimations (at this point, identified with the numbers of copies to save for the stack) and stack weights (representing the impact, in percentage, that each weighted image will have over the whole stack), 
+(see Figure below).
+  
+#############CSV FILE PICTURE 
+ 
+  
 ## Installation and dependencies
 Folders, subfolders...
 File format
