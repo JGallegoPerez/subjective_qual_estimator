@@ -77,7 +77,7 @@ paper notes in this step, which will help us be more consistent in the scoring l
 are iteratively displayed, which we reject/include for our stack by pressing <,> or <.> on the keyboard, respectively. This can be done at fast pace with the index 
 and middle fingers of one hand, but note that we would typically want to have many frames included in our stack. Aim for no less than 800-1000 included frames.
 
-**(regular) rating:** after having preselected many "acceptable" subframes, we iterate through them again, this time assessing them more finely by assigning a 
+**(Regular) rating:** after having preselected many "acceptable" subframes, we iterate through them again, this time assessing them more finely by assigning a 
 score of 1 (worst) to 5 (best: reserved for superframes). This is a lengthy process. It helps to use only the left hand, which each finger other than the thumb 
 resting on the keyboard's <1>-<4> number keys. 1-4 will be the most common scores (thus, we will be using mostly those four leftmost fingers). From time to time, we might want to score an image as superframe, for which we will press <5>.
 
@@ -102,9 +102,9 @@ we may have lost the initial sense of what the subframes we are rating look like
 ###########MENU PICTURE
 
 
-## csv and experimentation
+## .CSV file and experimentation
 
-The program saves a .CSV file, called "*subs_ratings.csv*" that contains the images' names, first/regular ratings, superframe ratings, quality estimations (at this point, identified with the numbers of copies to save for the stack) and stack weights (representing the impact, in percentage, that each weighted image will have over the whole stack), (see Figure below). 
+The program saves a .CSV file, called "*subs_ratings.csv*" that contains the images' names, first/regular ratings, superframe ratings, quality estimations (at this point, identified with the numbers of copies to save for the stack) and stack weights (representing the impact, in percentage, that each weighted image will have over the whole stack), (see Figure below). This file can be opened with .CSV plugins from your IDE of choice, or externally with Excel or other spreadsheet softwares.
   
 #############CSV FILE PICTURE 
  
