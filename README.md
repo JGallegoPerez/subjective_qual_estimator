@@ -64,14 +64,51 @@ if we have a scarce set of subs that include one or two superframes, we may not 
 representation in the stack of 10% or more, for example, that subframe would contribute its good appearance, but would also impose its own noise. The final summary
 shows the equivalent number of frames that would have been stacked, had there been no weighting (thus, copying of subframes). 
 
+## Procedure
+
+The general procedure consists of the following stages:
+
+(We already start from a subset of a few thousand relatively good subframes, which one may have obtained by pre-quality assessing the subframes 
+with the help of applications like PIPP)
+
+**Practice:** from that initial sample, we begin by taking a look at randomly drawn subframes, so that we get a sense of the diversity we are going to encounter 
+later throughout the rating process. This is the moment to refine our intutions about what we consider bad or good subframes and why. It can be useful to take 
+paper notes in this step, which will help us be more consistent in the scoring later. The program doesn't save any user responses in this stage. 
+
+**Preselection:**  next, we carry out a fast "preselection". Images of each subframe 
+are iteratively displayed, which we reject/include for our stack by pressing <,> or <.> on the keyboard, respectively. This can be done at fast pace with the index 
+and middle fingers of one hand, but note that we would typically want to have many frames included in our stack. Aim for no less than 800-1000 included frames.
+
+**(regular) rating:** after having preselected many "acceptable" subframes, we iterate through them again, this time assessing them more finely by assigning a 
+score of 1 (worst) to 5 (best: reserved for superframes). This is a lengthy process. It helps to use only the left hand, which each finger other than the thumb 
+resting on the keyboard's <1>-<4> number keys. 1-4 will be the most common scores (thus, we will be using mostly those four leftmost fingers). From time to time, we might want to score an image as superframe, for which we will press <5>.
+
+**Superframe rating:** since the superframes will likely have a considerable impact on the final stack, we repeat the previous rating process as before (<1> to <5>), 
+but this time with the subframes that we have rated as superframes. 
+
+After having finalized these three stages, we will visualize a summary and a count histogram of the score distributions. These will inform our next decision of 
+what weights to assign to each score. At this point, weights identify with the number of copies that will be made for each rated frame. To help us here, we receive 
+a prompt that reads "Equivalent original subframes: ". It refers to an improvised, simple algorithm to compute (noise and quality considerations aside) the number 
+of original subframes that the final stack equals, supposing we hadn't carried out any weighting. (When we weight some images more than others we actually reduce 
+the variability in the final stack, which may be detrimental in reducing noise). This equivalent number is equal or lower (can be *much* lower) than the total 
+amount of copies produced for the stack. The algorithm has the shape:
+
+   *equiv_subs =  sum(num_copies / max_copies)*, where num_copies refers to the amount of copies of each image and max_copies is the highest number of copies that 
+ has been produced for any single frame. 
+
+The overall procedure may sound complicated, but we are guided by an interactive menu that allows us to move from stage to stage. We can return to the menu anytime by 
+pressing <m>, which doesn't reinitialize the program nor eliminates the progress we may have made up to that point. The menu also adds the possibility of *practicing* anytime, just as we did at the beginnng, but within the pipeline stage we are currently in (e.g. if you are in "superframe rating", the practice mode will show you
+only random images from the already-rated group and no images that you had already rejected). This can be useful, since after rating many images, or taking a break, 
+we may have lost the initial sense of what the subframes we are rating look like. 
+
+###########MENU PICTURE
 
 
-## Procedure in a nutshell 
+## csv and experimentation
 
-
-
-
-
+## Installation and dependencies
+Folders, subfolders...
+File format
 
 
 Special thanks to Takazumi Matsumoto for .. and to Alex Baranski for...
