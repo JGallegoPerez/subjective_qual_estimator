@@ -123,6 +123,13 @@ to be stacked and can be used directly with other commercial applications, such 
 The required file format for the images is .tif, but this can be easily modified in the utils.py module, as long as the image file formats are within those 
 accepted by OpenCV. 
 
+Package dependencies can be found in *requirements.txt*.
+  
+## Disclaimer
+  
+I am not a professional astronomer. This project has been developed for recreational purposes. My approach may not have been scientifically or technically rigorous.
+Also, it is not my intention to discredit the abovementioned astrophotography commercial applications.
+  
 ## Acknowledgments
   
 Special thanks to Takazumi Matsumoto for encouragement and inspiration, as well as to Alex Baranski.
